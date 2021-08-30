@@ -67,6 +67,20 @@ function! gitgutter#sign#update_signs(bufnr, modified_lines) abort
           \ '"lnum":     v:val[0],'.
           \ '"priority": g:gitgutter_sign_priority'.
           \ '}')
+    for sign in signs
+      let other = sign_getplaced(a:bufnr, {'lnum': sign.lnum})[0].signs
+      if len(other)
+        let other = other[0]
+        if other.name =~# 'Syntastic' && stridx(sign.name, 'Syntastic') == -1
+          if other.name =~# 'Error'
+            let sign.name .= 'SyntasticError'
+          else
+            let sign.name .= 'SyntasticWarning'
+          endif
+          let sign.priority = 15
+        endif
+      endif
+    endfor
 
     if exists('*sign_placelist')
       call sign_placelist(signs)
